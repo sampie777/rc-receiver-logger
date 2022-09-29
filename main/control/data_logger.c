@@ -19,6 +19,8 @@ int data_logger_write(State *state) {
     if (esp_timer_get_time_ms() < last_log_time + DATA_LOGGER_LOG_MAX_INTERVAL_MS) return RESULT_EMPTY;
     last_log_time = esp_timer_get_time_ms();
 
+    gpio_set_level(LED_BUILTIN_PIN, state->storage.is_connected);
+
 #if ENABLE_SD
     if (sd_card_file_append(state->storage.filename, state->storage.buffer) == RESULT_OK) {
         state->storage.is_connected = true;
@@ -32,6 +34,8 @@ int data_logger_write(State *state) {
     if (strlen(state->storage.buffer) > 0) {
         state->storage.buffer[0] = '\0';
     }
+
+    gpio_set_level(LED_BUILTIN_PIN, 0);
     return RESULT_OK;
 }
 
@@ -86,6 +90,8 @@ void data_logger_process(State *state) {
 void data_logger_init(State *state) {
 #if ENABLE_SD
     printf("[DataLogger] Initializing...\n");
+
+    gpio_set_direction(LED_BUILTIN_PIN, GPIO_MODE_OUTPUT);
 
     if (sd_card_init() != RESULT_OK) {
         state->storage.is_connected = false;
