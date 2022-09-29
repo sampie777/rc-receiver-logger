@@ -7,7 +7,9 @@
 #include "../utils.h"
 
 #if ENABLE_SD
+
 #include "../peripherals/sd_card.h"
+
 #endif
 
 
@@ -23,8 +25,9 @@ int data_logger_write(State *state) {
     } else {
         state->storage.is_connected = false;
     }
-#endif
+#else
     printf("%s", state->storage.buffer);
+#endif
 
     if (strlen(state->storage.buffer) > 0) {
         state->storage.buffer[0] = '\0';
@@ -35,25 +38,25 @@ int data_logger_write(State *state) {
 void data_logger_log_current(State *state) {
     static int64_t last_log_time = 0;
 
-    if (esp_timer_get_time_ms() < last_log_time + 10) return;
+    if (esp_timer_get_time_ms() < last_log_time + 20) return;
     last_log_time = esp_timer_get_time_ms();
 
     char buffer[64];
     sprintf(buffer,
-            "%9lld;"            // esp_timer_get_time_ms()
-            "%5.1lf;"           // channel 0
-            "%5.1lf;"           // channel 1
-            "%5.1lf;"           // channel 2
-            "%5.1lf;"           // channel 3
-            "%5.1lf;"           // channel 4
-            "%6u;"              // Duration 0
+            "%lld;"            // esp_timer_get_time_ms()
+            "%.1lf;"           // channel 0
+            "%.1lf;"           // channel 1
+            "%.1lf;"           // channel 2
+            "%.1lf;"           // channel 3
+            "%.1lf;"           // channel 4
+            "%u;"              // Duration 0
             "\n",
             esp_timer_get_time_ms(),
-            (double) (max(1000, state->rc.channel0.prev_value) - 1000) / 1000 * 100,
-            (double) (max(1000, state->rc.channel1.prev_value) - 1000) / 1000 * 100,
-            (double) (max(1000, state->rc.channel2.prev_value) - 1000) / 1000 * 100,
-            (double) (max(1000, state->rc.channel3.prev_value) - 1000) / 1000 * 100,
-            (double) (max(1000, state->rc.channel4.prev_value) - 1000) / 1000 * 100,
+            ((double) state->rc.channel0.prev_value - 1000) / 1000 * 100,
+            ((double) state->rc.channel1.prev_value - 1000) / 1000 * 100,
+            ((double) state->rc.channel2.prev_value - 1000) / 1000 * 100,
+            ((double) state->rc.channel3.prev_value - 1000) / 1000 * 100,
+            ((double) state->rc.channel4.prev_value - 1000) / 1000 * 100,
             state->rc.channel0.prev_cycle_length
     );
 

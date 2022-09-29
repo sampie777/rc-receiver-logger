@@ -52,6 +52,7 @@ void process_channel(RcChannel *channel, gpio_num_t pin) {
     if (!gpio_get_level(pin))
         channel->value = current_time - channel->cycle_start_time;
 }
+
 void rc_collect_data(State *state) {
     process_channel(&(state->rc.channel0), RC_CHANNEL_0_PIN);
     process_channel(&(state->rc.channel1), RC_CHANNEL_1_PIN);
