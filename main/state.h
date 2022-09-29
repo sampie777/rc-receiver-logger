@@ -28,6 +28,7 @@ typedef struct {
 typedef struct {
     uint8_t is_connected;
     char filename[32];
+    char *buffer;
 } SDState;
 
 typedef struct {

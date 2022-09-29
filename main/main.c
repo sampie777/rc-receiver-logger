@@ -24,12 +24,16 @@ _Noreturn void process_main(State *state) {
     while (1) {
         // Collect data
         rc_collect_data(state);
+
+        // Process data
+        data_logger_log_current(state);
     }
 }
 
 // Running on main core
 void app_main(void) {
     State state = {0};
+    state.storage.buffer = NULL;
 
     // Init second core
     portBASE_TYPE result = xTaskCreatePinnedToCore(&process_second, "process_second",

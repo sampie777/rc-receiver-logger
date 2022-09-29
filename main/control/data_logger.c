@@ -3,49 +3,49 @@
 //
 
 #include "data_logger.h"
+#include "../return_codes.h"
+#include "../utils.h"
 
 #if ENABLE_SD
-
 #include "../peripherals/sd_card.h"
-#include "../return_codes.h"
-
 #endif
 
-#include "../utils.h"
-#include "../return_codes.h"
 
-int data_logger_write(State *state, const char *data) {
+int data_logger_write(State *state) {
     static int64_t last_log_time = 0;
 
     if (esp_timer_get_time_ms() < last_log_time + DATA_LOGGER_LOG_MAX_INTERVAL_MS) return RESULT_EMPTY;
     last_log_time = esp_timer_get_time_ms();
 
 #if ENABLE_SD
-    if (sd_card_file_append(state->storage.filename, data) == RESULT_OK) {
+    if (sd_card_file_append(state->storage.filename, state->storage.buffer) == RESULT_OK) {
         state->storage.is_connected = true;
     } else {
         state->storage.is_connected = false;
     }
 #endif
-    printf("%s\n", data);
+    printf("%s", state->storage.buffer);
+
+    if (strlen(state->storage.buffer) > 0) {
+        state->storage.buffer[0] = '\0';
+    }
     return RESULT_OK;
 }
 
 void data_logger_log_current(State *state) {
     static int64_t last_log_time = 0;
-    static char *total_buffer = NULL;
 
     if (esp_timer_get_time_ms() < last_log_time + 10) return;
     last_log_time = esp_timer_get_time_ms();
 
     char buffer[64];
     sprintf(buffer,
-            "%9lld;"         // esp_timer_get_time_ms()
-            "%5.1lf;"          // channel 0
-            "%5.1lf;"          // channel 1
-            "%5.1lf;"          // channel 2
-            "%5.1lf;"          // channel 3
-            "%5.1lf;"          // channel 4
+            "%9lld;"            // esp_timer_get_time_ms()
+            "%5.1lf;"           // channel 0
+            "%5.1lf;"           // channel 1
+            "%5.1lf;"           // channel 2
+            "%5.1lf;"           // channel 3
+            "%5.1lf;"           // channel 4
             "%6u;"              // Duration 0
             "\n",
             esp_timer_get_time_ms(),
@@ -57,19 +57,13 @@ void data_logger_log_current(State *state) {
             state->rc.channel0.prev_cycle_length
     );
 
-    if (total_buffer == NULL) {
-        total_buffer = malloc(strlen(buffer) + 1);
-        total_buffer[0] = '\0';
+    if (state->storage.buffer == NULL) {
+        state->storage.buffer = malloc(strlen(buffer) + 1);
+        state->storage.buffer[0] = '\0';
     } else {
-        total_buffer = realloc(total_buffer, strlen(total_buffer) + strlen(buffer) + 1);
+        state->storage.buffer = realloc(state->storage.buffer, strlen(state->storage.buffer) + strlen(buffer) + 1);
     }
-    strcat(total_buffer, buffer);
-
-    if (data_logger_write(state, total_buffer) == RESULT_OK) {
-        if (strlen(total_buffer) > 0) {
-            total_buffer[0] = '\0';
-        }
-    }
+    strcat(state->storage.buffer, buffer);
 }
 
 void data_logger_process(State *state) {
@@ -83,7 +77,7 @@ void data_logger_process(State *state) {
     }
 #endif
 
-    data_logger_log_current(state);
+    data_logger_write(state);
 }
 
 void data_logger_init(State *state) {
@@ -103,7 +97,7 @@ void data_logger_init(State *state) {
         }
         printf("[SD] Using file: %s\n", state->storage.filename);
 
-        sd_card_file_append(state->storage.filename, "timestamp;channel1;channel2;channel3;channel4;channel5\n");
+        sd_card_file_append(state->storage.filename, "timestamp;channel1;channel2;channel3;channel4;channel5;period0;\n");
     }
 
     printf("[DataLogger] Init done\n");
