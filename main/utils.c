@@ -26,9 +26,9 @@ void delay_ms(unsigned long ms) {
     vTaskDelay(ms / portTICK_PERIOD_MS);
 }
 
-void utils_reboot(State *state) {
-    state->is_rebooting = true;
-    delay_ms(2000);
+void utils_reboot() {
+    printf("Reboot\n");
+    delay_ms(1000);
     esp_restart();
 }
 

@@ -18,7 +18,7 @@ int64_t esp_timer_get_time_ms();
 
 void delay_ms(unsigned long ms);
 
-void utils_reboot(State *state);
+void utils_reboot();
 
 double average_read_channel(adc1_channel_t channel, int sample_count);
 

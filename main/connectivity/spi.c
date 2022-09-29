@@ -6,7 +6,6 @@
 #include <hal/gpio_types.h>
 #include "spi.h"
 #include "../return_codes.h"
-#include "../peripherals/display/display.h"
 
 
 int spi_init(State *state) {
@@ -22,7 +21,6 @@ int spi_init(State *state) {
 
     if (error != ESP_OK) {
         printf("Return code for spi_bus_initialize: %d\n", error);
-        display_set_error_message(state, "SPI failed");
         return RESULT_FAILED;
     }
     return RESULT_OK;
