@@ -11,8 +11,8 @@
 
 #define DEVICE_NAME "RClogger"
 
-#define ENABLE_SD true
-#define DATA_LOGGER_LOG_MAX_INTERVAL_MS 100
+#define ENABLE_SD false
+#define DATA_LOGGER_LOG_MAX_INTERVAL_MS 500
 
 #define SPI_MOSI_PIN GPIO_NUM_12
 #define SPI_MISO_PIN GPIO_NUM_13

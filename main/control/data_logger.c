@@ -5,23 +5,40 @@
 #include "data_logger.h"
 
 #if ENABLE_SD
+
 #include "../peripherals/sd_card.h"
 #include "../return_codes.h"
+
 #endif
 
 #include "../utils.h"
+#include "../return_codes.h"
 
-/**
- * Collect data and write to SD card
- * @param state
- */
-void data_logger_log_current(State *state) {
+int data_logger_write(State *state, const char *data) {
     static int64_t last_log_time = 0;
 
-    if (esp_timer_get_time_ms() < last_log_time + DATA_LOGGER_LOG_MAX_INTERVAL_MS) return;
+    if (esp_timer_get_time_ms() < last_log_time + DATA_LOGGER_LOG_MAX_INTERVAL_MS) return RESULT_EMPTY;
     last_log_time = esp_timer_get_time_ms();
 
-    char buffer[128];
+#if ENABLE_SD
+    if (sd_card_file_append(state->storage.filename, data) == RESULT_OK) {
+        state->storage.is_connected = true;
+    } else {
+        state->storage.is_connected = false;
+    }
+#endif
+    printf("%s\n", data);
+    return RESULT_OK;
+}
+
+void data_logger_log_current(State *state) {
+    static int64_t last_log_time = 0;
+    static char *total_buffer = NULL;
+
+    if (esp_timer_get_time_ms() < last_log_time + 10) return;
+    last_log_time = esp_timer_get_time_ms();
+
+    char buffer[64];
     sprintf(buffer,
             "%9lld;"         // esp_timer_get_time_ms()
             "%5.1lf;"          // channel 0
@@ -40,14 +57,19 @@ void data_logger_log_current(State *state) {
             state->rc.channel0.prev_cycle_length
     );
 
-#if ENABLE_SD
-    if (sd_card_file_append(state->storage.filename, buffer) == RESULT_OK) {
-        state->storage.is_connected = true;
+    if (total_buffer == NULL) {
+        total_buffer = malloc(strlen(buffer) + 1);
+        total_buffer[0] = '\0';
     } else {
-        state->storage.is_connected = false;
+        total_buffer = realloc(total_buffer, strlen(total_buffer) + strlen(buffer) + 1);
     }
-#endif
-    printf("%s", buffer);
+    strcat(total_buffer, buffer);
+
+    if (data_logger_write(state, total_buffer) == RESULT_OK) {
+        if (strlen(total_buffer) > 0) {
+            total_buffer[0] = '\0';
+        }
+    }
 }
 
 void data_logger_process(State *state) {

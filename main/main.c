@@ -14,14 +14,12 @@ _Noreturn void process_second(void *args) {
     while (1) {
         // Process data
         data_logger_process(state);
-        delay_ms(25);   // Keep the watchdog happy
     }
     vTaskDelete(NULL);
 }
 
 _Noreturn void process_main(State *state) {
     rc_init();
-    state->is_booting = false;
 
     while (1) {
         // Collect data
@@ -31,9 +29,7 @@ _Noreturn void process_main(State *state) {
 
 // Running on main core
 void app_main(void) {
-    State state = {
-            .is_booting = true,
-    };
+    State state = {0};
 
     // Init second core
     portBASE_TYPE result = xTaskCreatePinnedToCore(&process_second, "process_second",
