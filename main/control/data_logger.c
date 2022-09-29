@@ -19,6 +19,7 @@ void data_logger_log_current(State *state) {
     static int64_t last_log_time = 0;
 
     if (esp_timer_get_time_ms() < last_log_time + DATA_LOGGER_LOG_MAX_INTERVAL_MS) return;
+    last_log_time = esp_timer_get_time_ms();
 
     char buffer[128];
     sprintf(buffer,
@@ -47,7 +48,6 @@ void data_logger_log_current(State *state) {
     }
 #endif
     printf("%s", buffer);
-    last_log_time = esp_timer_get_time_ms();
 }
 
 void data_logger_process(State *state) {
