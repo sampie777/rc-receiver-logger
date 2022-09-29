@@ -1,4 +1,4 @@
-Car Computer
+RC receiver logger
 ====================
 
 This is project uses [Espressif IoT Development Framework](https://github.com/espressif/esp-idf).
@@ -23,10 +23,6 @@ Commands to use:
 - `idf.py [-p /dev/ttyUSB0] flash` (build included)
 - `idf.py [-p /dev/ttyUSB0] monitor`
 
-
-# Project setup
-
-1. Copy and rename the `secrets.h.template` file to `secrets.h` and edit the values to your need.
 
 #### New files
 
