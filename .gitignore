@@ -1,0 +1,7 @@
+build/
+sdkconfig.old
+cmake-build-*/
+*.iml
+.idea/
+CMakeListsPrivate.txt
+secrets.h
