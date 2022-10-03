@@ -8,11 +8,12 @@
 #include "../utils.h"
 
 void rc_init() {
-    gpio_set_direction(RC_CHANNEL_0_PIN, GPIO_MODE_INPUT);
     gpio_set_direction(RC_CHANNEL_1_PIN, GPIO_MODE_INPUT);
     gpio_set_direction(RC_CHANNEL_2_PIN, GPIO_MODE_INPUT);
     gpio_set_direction(RC_CHANNEL_3_PIN, GPIO_MODE_INPUT);
     gpio_set_direction(RC_CHANNEL_4_PIN, GPIO_MODE_INPUT);
+    gpio_set_direction(RC_CHANNEL_5_PIN, GPIO_MODE_INPUT);
+    gpio_set_direction(RC_CHANNEL_6_PIN, GPIO_MODE_INPUT);
 }
 
 void track_errors(RcChannel *channel) {
@@ -54,9 +55,10 @@ void process_channel(RcChannel *channel, gpio_num_t pin) {
 }
 
 void rc_collect_data(State *state) {
-    process_channel(&(state->rc.channel0), RC_CHANNEL_0_PIN);
     process_channel(&(state->rc.channel1), RC_CHANNEL_1_PIN);
     process_channel(&(state->rc.channel2), RC_CHANNEL_2_PIN);
     process_channel(&(state->rc.channel3), RC_CHANNEL_3_PIN);
     process_channel(&(state->rc.channel4), RC_CHANNEL_4_PIN);
+    process_channel(&(state->rc.channel5), RC_CHANNEL_5_PIN);
+    process_channel(&(state->rc.channel6), RC_CHANNEL_6_PIN);
 }

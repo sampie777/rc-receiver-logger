@@ -18,11 +18,12 @@ typedef struct {
 } RcChannel;
 
 typedef struct {
-    RcChannel channel0;
     RcChannel channel1;
     RcChannel channel2;
     RcChannel channel3;
     RcChannel channel4;
+    RcChannel channel5;
+    RcChannel channel6;
 } RcState;
 
 typedef struct {

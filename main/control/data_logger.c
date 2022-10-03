@@ -48,20 +48,22 @@ void data_logger_log_current(State *state) {
     char buffer[64];
     sprintf(buffer,
             "%lld;"            // esp_timer_get_time_ms()
-            "%.1lf;"           // channel 0
             "%.1lf;"           // channel 1
             "%.1lf;"           // channel 2
             "%.1lf;"           // channel 3
             "%.1lf;"           // channel 4
-            "%u;"              // Duration 0
+            "%.1lf;"           // channel 5
+            "%.1lf;"           // channel 6
+            "%u;"              // PWM Duration ch. 1
             "\n",
             esp_timer_get_time_ms(),
-            ((double) state->rc.channel0.prev_value - 1000) / 1000 * 100,
             ((double) state->rc.channel1.prev_value - 1000) / 1000 * 100,
             ((double) state->rc.channel2.prev_value - 1000) / 1000 * 100,
             ((double) state->rc.channel3.prev_value - 1000) / 1000 * 100,
             ((double) state->rc.channel4.prev_value - 1000) / 1000 * 100,
-            state->rc.channel0.prev_cycle_length
+            ((double) state->rc.channel5.prev_value - 1000) / 1000 * 100,
+            ((double) state->rc.channel6.prev_value - 1000) / 1000 * 100,
+            state->rc.channel1.prev_cycle_length
     );
 
     if (state->storage.buffer == NULL) {
@@ -106,7 +108,7 @@ void data_logger_init(State *state) {
         }
         printf("[SD] Using file: %s\n", state->storage.filename);
 
-        sd_card_file_append(state->storage.filename, "timestamp;channel1;channel2;channel3;channel4;channel5;period0;\n");
+        sd_card_file_append(state->storage.filename, "timestamp;channel1;channel2;channel3;channel4;channel5;channel6;period1;\n");
     }
 
     printf("[DataLogger] Init done\n");
