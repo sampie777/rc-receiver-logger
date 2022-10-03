@@ -39,6 +39,10 @@ int data_logger_write(State *state) {
     return RESULT_OK;
 }
 
+double convert_pulse_count_to_percent(uint32_t count) {
+    return min(110, max(-10, ((double) count - 1000) / 1000 * 100));
+}
+
 void data_logger_log_current(State *state) {
     static int64_t last_log_time = 0;
 
@@ -57,12 +61,12 @@ void data_logger_log_current(State *state) {
             "%u;"              // PWM Duration ch. 1
             "\n",
             esp_timer_get_time_ms(),
-            ((double) state->rc.channel1.prev_value - 1000) / 1000 * 100,
-            ((double) state->rc.channel2.prev_value - 1000) / 1000 * 100,
-            ((double) state->rc.channel3.prev_value - 1000) / 1000 * 100,
-            ((double) state->rc.channel4.prev_value - 1000) / 1000 * 100,
-            ((double) state->rc.channel5.prev_value - 1000) / 1000 * 100,
-            ((double) state->rc.channel6.prev_value - 1000) / 1000 * 100,
+            convert_pulse_count_to_percent(state->rc.channel1.prev_value),
+            convert_pulse_count_to_percent(state->rc.channel2.prev_value),
+            convert_pulse_count_to_percent(state->rc.channel3.prev_value),
+            convert_pulse_count_to_percent(state->rc.channel4.prev_value),
+            convert_pulse_count_to_percent(state->rc.channel5.prev_value),
+            convert_pulse_count_to_percent(state->rc.channel6.prev_value),
             state->rc.channel1.prev_cycle_length
     );
 
